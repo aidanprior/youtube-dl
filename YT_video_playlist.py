@@ -19,8 +19,8 @@ OUTPUT_TEMPLATE = "%(playlist_title)s/%(playlist_index)s-%(title)s.%(ext)s"
 OUTPUT_LOG_FILE = THIS_DIR / "Logs/YT_video_playlists.log"
 ARCHIVE_FILE = THIS_DIR / "Archives/Video_Archive.txt"
 
-# INPUT_FILE = HOME / "AppData/youtube-dl/Playlists.txt" # This is where your old one is, but I would suggest using the one below
-INPUT_FILE = OUTPUT_DIR / "Playlists.txt"
+INPUT_FILE = HOME / "AppData/youtube-dl/Playlists.txt" # This is where your old one is, but I would suggest using the one below
+# INPUT_FILE = OUTPUT_DIR / "Playlists.txt"
 PATH_FIRST_HALF = "https://www.youtube.com/playlist?list="
 
 
@@ -106,9 +106,10 @@ if __name__ == "__main__":
 
     if not INPUT_FILE.exists():
         print()
-        print("Couldn't find the input file!")
+        print("Couldn't find the input file: (%s)" % str(INPUT_FILE))
         print()
         input("Press ENTER to close")
+        sys.exit(1)
     
 
     with Path(INPUT_FILE).open() as input_file:
