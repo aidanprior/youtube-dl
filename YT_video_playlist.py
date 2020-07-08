@@ -69,16 +69,12 @@ def progress_hook(d):
         progress_str = ' ' * len('downloaded: ') + "%-27.26s%6d%% %5dkB/s ETA: %2ds%30s" % (Path(d['filename']).stem, percent_progress, kBs, eta, " ")
         print(f'{progress_str}\r', end="")
 
-def get_title(playlist_id):
-    with youtube_dl.YoutubeDL({'logger': lgr, 'simulate': True, 'skip_download': True}) as ydl:
-        output = ydl.extract_info(PATH_FIRST_HALF + playlist_id, download=False)
-    print("Downloading from: %s" % output.get('title', "(No Playlist Title Found!)"))
-
 def download_playlist(playlist_id, start_number, end_number):
-    if PRINT_PLAYLIST_TITLES:
-        get_title(playlist_id)
-    else:
-        print("Downloading playlist with id=", playlist_id)
+    #get the playlist's name
+    with youtube_dl.YoutubeDL({'quiet': True}) as ydl:
+        info = ydl.extract_info(PATH_FIRST_HALF + playlist_id, download=False, process=False)
+
+    print(f"Downloading from {info.get('_type', '(Unkown)')}:{info.get('title', '(Unknown)')}")
 
     ydl_opts = {
         'verbose': False,
@@ -100,10 +96,20 @@ def download_playlist(playlist_id, start_number, end_number):
         ydl.download([PATH_FIRST_HALF + playlist_id])
 
 if __name__ == "__main__":
-    print(OUTPUT_LOG_FILE)
+    #make sure youtube-dl is up to date
     print("Checking for the latest version...")
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'youtube-dl', '--user'], stdout=subprocess.DEVNULL)
-
+    output = subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'youtube-dl', '--user'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    stdout_str = output.stdout.decode('utf-8')
+    if stdout_str[:42] != "Requirement already up-to-date: youtube-dl":
+        print("Successfully", stdout_str.split("Successfully ")[-1]) #has trailing newline
+        print("Please re-run the program to continue")
+        input("Press Enter to Exit...")
+        sys.exit(1)
+    else:
+        print("youtube-dl is up to date:", stdout_str.split("(")[-1].split(")")[0])
+        print()
+        
+    
     if not INPUT_FILE.exists():
         print()
         print("Couldn't find the input file: (%s)" % str(INPUT_FILE))

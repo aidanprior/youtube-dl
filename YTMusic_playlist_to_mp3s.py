@@ -18,7 +18,7 @@ YTMUSIC_PLAYLIST_URL = "https://music.youtube.com/playlist?list=PLhJkIvP92dx7NIl
 
 OUTPUT_LOG_FILE = THIS_DIR / "Logs/YTMusic_playlist_to_mp3s.log"
 ARCHIVE_FILE = THIS_DIR / "Archives/Audio_Archive.txt"
-FFMPEG_BIN_DIR = Path("C:/Program Files/ffmpeg-20200601-dd76226-win64-static/bin")
+FFMPEG_BIN_DIR = Path("C:/Program Files (x86)/ffmpeg-20200628-4cfcfb3-win64-static/bin")
 
 
 # !!! DON'T CHANGE ANYTHING BELOW HERE !!!
@@ -87,10 +87,24 @@ ydl_opts = {
     'progress_hooks': [progress_hook]
 }
 
+#make sure youtube-dl is up to date
 print("Checking for the latest version...")
-subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'youtube-dl', '--user'], stdout=subprocess.DEVNULL)
+output = subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'youtube-dl', '--user'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+stdout_str = output.stdout.decode('utf-8')
+if stdout_str[:42] != "Requirement already up-to-date: youtube-dl":
+    print("Successfully", stdout_str.split("Successfully ")[-1]) #has trailing newline
+    print("Please re-run the program to continue")
+    input("Press Enter to Exit...")
+    sys.exit(1)
+else:
+    print("youtube-dl is up to date:", stdout_str.split("(")[-1].split(")")[0])
+    print()
 
-print("Downloading from playlist id= %s" % YTMUSIC_PLAYLIST_URL.split('playlist?list=')[-1])
+#get the playlist's name
+with youtube_dl.YoutubeDL({'quiet': True}) as ydl:
+    info = ydl.extract_info(PATH_FIRST_HALF + playlist_id, download=False, process=False)
+
+print(f"Downloading from {info.get('_type', '(Unkown)')}:{info.get('title', '(Unknown)')}")
 print()
 
 with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -98,4 +112,5 @@ with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 
 print()
 print("Downloaded %d mp3s" % total_downloaded)
-input()
+print()
+input("Press Enter to Exit...")
