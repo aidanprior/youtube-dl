@@ -35,6 +35,24 @@ VIDEO_ARCHIVE_FILE = THIS_DIR / "Archives/Video_Archive.txt"
 
 
 #!!!! DON'T TOUCH !!!!
+def check_create_tree(filepath):
+    if not filepath.exists():
+        #build tree
+        to_make = filepath.parent
+        while True:
+            try:
+                Path.mkdir(to_make)
+            except FileExistsError:
+                break
+            to_make = to_make.parent
+        Path.touch(filepath, exist_ok=True)
+
+check_create_tree(AUDIO_ARCHIVE_FILE)
+check_create_tree(VIDEO_ARCHIVE_FILE)
+check_create_tree(AUDIO_OUTPUT_LOG_FILE)
+check_create_tree(VIDEO_OUTPUT_LOG_FILE)
+check_create_tree(VIDEO_INPUT_FILE)
+
 FFMPEG_BIN_DIR = str(FFMPEG_BIN_DIR.resolve())
 AUDIO_OUTPUT_TEMPLATE = str((AUDIO_OUTPUT_DIR / AUDIO_OUTPUT_SHORT_TEMPLATE).resolve())
 AUDIO_ARCHIVE_FILE = str(AUDIO_ARCHIVE_FILE.resolve())

@@ -24,7 +24,7 @@ def update_this():
     )
     CMD = (
     f'pip install --src="{SRC_DIR}" --upgrade ' 
-    f'https://github.com/awp95/youtube-dl/archive/master.zip' 
+    f'https://github.com/awp95/youtube-dl/dist/master.zip' 
     )
 
     subprocess.check_call(CMD)
