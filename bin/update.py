@@ -22,10 +22,10 @@ def update_this():
     f'pip install --src="{SRC_DIR}" --upgrade -e ' 
     f'git://github.com/aidanprior/youtube-dl.git@{RELEASE}#egg=youtube-dl' 
     )
-    CMD = (
-    f'pip install --src="{SRC_DIR}" --upgrade ' 
-    f'https://github.com/aidanprior/youtube-dl/archive/master.zip' 
-    )
+    # CMD = (
+    # f'pip install --src="{SRC_DIR}" --upgrade' 
+    # f'https://github.com/aidanprior/youtube-dl/archive/master.zip' 
+    # )
 
     subprocess.check_call(CMD)
 
