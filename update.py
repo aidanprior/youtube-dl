@@ -1,4 +1,5 @@
 import subprocess, sys, importlib
+from pathlib import Path
 
 def update_youtube_dl(printout):
     if printout:
@@ -15,7 +16,20 @@ def update_youtube_dl(printout):
     return importlib.import_module('youtube_dl')
 
 def update_this():
-    
-    version = ''
-    return version
+    RELEASE = 'origin/master'
+    SRC_DIR = Path(__file__).parent.resolve()
+    CMD = (
+    f'pip install --src="{SRC_DIR}" --upgrade -e ' 
+    f'git://github.com/awp95/youtube-dl.git@{RELEASE}#egg=youtube-dl' 
+    )
+    CMD = (
+    f'pip install --src="{SRC_DIR}" --upgrade ' 
+    f'https://github.com/awp95/youtube-dl/archive/master.zip' 
+    )
 
+    subprocess.check_call(CMD)
+
+
+if __name__ == "__main__":
+    update_youtube_dl(True)
+    update_this()
