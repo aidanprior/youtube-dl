@@ -1,80 +1,14 @@
-import youtube_dl, logging, subprocess, sys
+import sys
 from pathlib import Path
 
-# ----- CONFIGURATION STUFF ----
-# !!! DON'T CHANGE THIS STUFF !!!
-# FYI: Directory is another term for a folder, and is often shortened to Dir
-HOME = Path.home() # This is the user's directory. ie. "C:/Users/Johnny" on Windows
-                   # It can be joined with another path like so: HOME / "Desktop/New Folder"
-THIS_DIR = Path(__file__).parent.resolve() # This is the directory where this script is
+import shared, update
+from config import VIDEO_INPUT_FILE, VIDEO_ARCHIVE_FILE, VIDEO_OUTPUT_DIR, VIDEO_OUTPUT_LOG_FILE, VIDEO_OUTPUT_TEMPLATE, PLAYLIST_URL_FIRST_HALF
 
-# YOU MAY CHANGE THIS STUFF
-# FILE PATHS CAN'T USE BACKSLASHES! Change "C:\blah\blah\blah" to "C:/blah/blah/blah"
-PRINT_PLAYLIST_TITLES = False # Do you want to print the titles of the playlists, this may take a bit more time, 
-                              # its not really worth it with the output template you are using
-
-OUTPUT_DIR = HOME / "Videos/Youtube"
-OUTPUT_TEMPLATE = "%(playlist_title)s/%(playlist_index)s-%(title)s.%(ext)s"
-
-OUTPUT_LOG_FILE = THIS_DIR / "Logs/YT_video_playlists.log"
-ARCHIVE_FILE = THIS_DIR / "Archives/Video_Archive.txt"
-
-INPUT_FILE = HOME / "AppData/youtube-dl/Playlists.txt" # This is where your old one is, but I would suggest using the one below
-# INPUT_FILE = OUTPUT_DIR / "Playlists.txt"
-PATH_FIRST_HALF = "https://www.youtube.com/playlist?list="
-
-
-# !!! DON'T CHANGE ANYTHING BELOW HERE !!!
-c_handler = logging.StreamHandler()
-c_format = logging.Formatter('%(filename)s : %(lineno)d - %(levelname)s - %(message)s')
-c_handler.setFormatter(c_format)
-c_handler.setLevel(logging.CRITICAL)
-
-f_handler = logging.FileHandler(OUTPUT_LOG_FILE)
-f_format = logging.Formatter('%(asctime)s - %(filename)s : %(lineno)d - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
-f_handler.setFormatter(f_format)
-f_handler.setLevel(logging.DEBUG)
-
-lgr = logging.getLogger(__name__)
-lgr.addHandler(c_handler)
-lgr.addHandler(f_handler)
-
-total_downloaded = 0
-def progress_hook(d):
-    global total_downloaded
-    if d['status'] == 'finished'and d.get('filename', False):
-        mB = -1
-        mins = 0
-        secs = 0
-        if d.get('downloaded_bytes', 0):
-            mB = d['downloaded_bytes']/1024/1024
-        if d.get('elapsed', 0):
-            mins = d['elapsed']//60
-            secs = d['elapsed']%60
-        
-        print("Downloaded: %-32.31s%3.2fmB%2d:%02d" % (Path(d['filename']).stem, mB, mins, secs), end=("\t" * 20))
-        total_downloaded += 1
-    
-    elif d['status'] == 'downloading' and d.get('filename', False):
-        percent_progress = -1
-        kBs = -1
-        eta = -1
-        if d.get('downloaded_bytes', 0) and d.get('total_bytes', 0):
-            percent_progress = int(d['downloaded_bytes']/d['total_bytes']*100)
-        if d.get('speed', 0):
-            kBs = int(d['speed']/1024)
-        if d.get('eta', 0):
-            eta = d['eta']
-
-        progress_str = ' ' * len('downloaded: ') + "%-27.26s%6d%% %5dkB/s ETA: %2ds%30s" % (Path(d['filename']).stem, percent_progress, kBs, eta, " ")
-        print(f'{progress_str}\r', end="")
-
-def download_playlist(playlist_id, start_number, end_number):
+def download_playlist(playlist_id, start_number, end_number, lgr):
     #get the playlist's name
     with youtube_dl.YoutubeDL({'quiet': True}) as ydl:
-        info = ydl.extract_info(PATH_FIRST_HALF + playlist_id, download=False, process=False)
-
-    print(f"Downloading from {info.get('_type', '(Unkown)')}:{info.get('title', '(Unknown)')}")
+        info = ydl.extract_info(PLAYLIST_URL_FIRST_HALF + playlist_id, download=False, process=False)
+    print(f"Downloading from {info.get('_type', '(Unkown)')}: {info.get('title', '(Unknown)')}")
 
     ydl_opts = {
         'verbose': False,
@@ -86,39 +20,31 @@ def download_playlist(playlist_id, start_number, end_number):
         'nooverwrites': True,
         'playliststart': start_number,
         'playlistend': end_number,
-        'outtmpl': str((OUTPUT_DIR / OUTPUT_TEMPLATE).resolve()),
-        'download_archive': str(ARCHIVE_FILE.resolve()),
+        'outtmpl': VIDEO_OUTPUT_TEMPLATE,
+        'download_archive': VIDEO_ARCHIVE_FILE,
         'logger': lgr,
-        'progress_hooks': [progress_hook]
+        'progress_hooks': [shared.create_hook("gB")]
     }
 
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([PATH_FIRST_HALF + playlist_id])
+        ydl.download([PLAYLIST_URL_FIRST_HALF + playlist_id])
 
-if __name__ == "__main__":
-    #make sure youtube-dl is up to date
-    print("Checking for the latest version...")
-    output = subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'youtube-dl', '--user'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    stdout_str = output.stdout.decode('utf-8')
-    if stdout_str[:42] != "Requirement already up-to-date: youtube-dl":
-        print("Successfully", stdout_str.split("Successfully ")[-1]) #has trailing newline
-        print("Please re-run the program to continue")
-        input("Press Enter to Exit...")
-        sys.exit(1)
-    else:
-        print("youtube-dl is up to date:", stdout_str.split("(")[-1].split(")")[0])
-        print()
-        
+def main():
+    global youtube_dl
+    lgr = shared.setup_loggers(VIDEO_OUTPUT_LOG_FILE)
     
-    if not INPUT_FILE.exists():
+    #make sure youtube-dl is up to date
+    
+    youtube_dl = update.update_youtube_dl(True)
+    
+    if not VIDEO_INPUT_FILE.exists():
         print()
-        print("Couldn't find the input file: (%s)" % str(INPUT_FILE))
+        print(f"Couldn't find the input file: {VIDEO_INPUT_FILE}")
         print()
         input("Press ENTER to close")
         sys.exit(1)
     
-
-    with Path(INPUT_FILE).open() as input_file:
+    with Path(VIDEO_INPUT_FILE).open() as input_file:
         place = 0
         for line in input_file:
             line = line.strip()
@@ -127,8 +53,12 @@ if __name__ == "__main__":
             if place == 0:
                 start_str, end_str = line.split('-')
             elif place == 1:
-                download_playlist(line, int(start_str), int(end_str))
+                download_playlist(line, int(start_str), int(end_str), lgr)
             place = (place + 1)%2
+    
     print()
-    print("Downloaded %d videos" % total_downloaded)
+    print(f"Downloaded {shared.total_downloaded} videos")
+    
+if __name__ == "__main__":
+    main()
     input("Press ENTER to close")
