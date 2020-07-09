@@ -20,11 +20,11 @@ def update_this():
     SRC_DIR = Path(__file__).parent.resolve()
     CMD = (
     f'pip install --src="{SRC_DIR}" --upgrade -e ' 
-    f'git://github.com/awp95/youtube-dl.git@{RELEASE}#egg=youtube-dl' 
+    f'git://github.com/aidanprior/youtube-dl.git@{RELEASE}#egg=youtube-dl' 
     )
     CMD = (
     f'pip install --src="{SRC_DIR}" --upgrade ' 
-    f'https://github.com/awp95/youtube-dl/dist/master.zip' 
+    f'https://github.com/aidanprior/youtube-dl/archive/master.zip' 
     )
 
     subprocess.check_call(CMD)
