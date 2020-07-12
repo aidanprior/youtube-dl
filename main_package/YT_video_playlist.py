@@ -2,7 +2,13 @@ import sys
 from pathlib import Path
 
 import shared, update
-from config import VIDEO_INPUT_FILE, VIDEO_ARCHIVE_FILE, VIDEO_OUTPUT_DIR, VIDEO_OUTPUT_LOG_FILE, VIDEO_OUTPUT_TEMPLATE, PLAYLIST_URL_FIRST_HALF
+try:
+    from config import VIDEO_INPUT_FILE, VIDEO_ARCHIVE_FILE, VIDEO_OUTPUT_DIR, VIDEO_OUTPUT_LOG_FILE, VIDEO_OUTPUT_TEMPLATE, PLAYLIST_URL_FIRST_HALF
+except ModuleNotFoundError:
+    print("ERROR: config not found")
+    print("If this is your first time running this, please make any desired changes to 'example_config.py', and then rename it to 'config.py'")
+    input("Press Enter to Exit...")
+    exit(1)
 
 def download_playlist(playlist_id, start_number, end_number, lgr):
     #get the playlist's name
