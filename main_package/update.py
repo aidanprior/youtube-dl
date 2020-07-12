@@ -1,6 +1,8 @@
 import subprocess, sys, importlib
 from pathlib import Path
 
+TOP_DIR = Path(__file__).parent.parent.parent.resolve()
+
 def update_youtube_dl(printout):
     if printout:
         print("Checking for the latest youtube-dl version...")
@@ -16,15 +18,12 @@ def update_youtube_dl(printout):
     return importlib.import_module('youtube_dl')
 
 def update_this():
-    TOP_DIR = Path(__file__).parent.parent.parent.resolve()
-    print(TOP_DIR)
-    CMD = (
-    f'python -m pip install --target="{TOP_DIR}" --upgrade --ignore-installed ' 
-    f'https://github.com/aidanprior/youtube-dl/archive/master.zip' 
+    cmd = (
+    f'python -m pip install --target="{TOP_DIR}" --upgrade ' 
+    f'git+https://github.com/aidanprior/youtube-dl.git'
     )
 
-    subprocess.check_call(CMD)
+    subprocess.check_call(cmd)
 
 if __name__ == "__main__":
-    # update_youtube_dl(True)
     update_this()
