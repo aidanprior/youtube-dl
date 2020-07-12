@@ -1,15 +1,33 @@
 import logging
 from pathlib import Path
+from configparser import ConfigParser
 
 total_downloaded = 0
 
-def setup_loggers(LOG_FILE):
+def get_config():
+    global config
+    config = ConfigParser()
+    config.read('config.cfg')
+    
+    HOME = Path(config['DEFAULT'].get('home_dir', Path.home().resolve()))
+    THIS_DIR = Path(config['DEFAULT'].get('this_dir', Path(__file__).parent.resolve()))
+    
+    config['DEFAULT']['home_dir'] = HOME.as_posix()
+    config['DEFAULT']['this_dir'] = THIS_DIR.as_posix()
+    
+    return config
+    
+
+
+def setup_loggers(config_section):
+    log_file = config[config_section]['log']
+    
     c_handler = logging.StreamHandler()
     c_format = logging.Formatter('%(filename)s : %(lineno)d - %(levelname)s - %(message)s')
     c_handler.setFormatter(c_format)
     c_handler.setLevel(logging.CRITICAL)
 
-    f_handler = logging.FileHandler(LOG_FILE)
+    f_handler = logging.FileHandler(log_file)
     f_format = logging.Formatter('%(asctime)s - %(filename)s : %(lineno)d - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
     f_handler.setFormatter(f_format)
     f_handler.setLevel(logging.DEBUG)
