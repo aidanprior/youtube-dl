@@ -4,14 +4,14 @@ from configparser import ConfigParser
 
 total_downloaded = 0
 
-CONFIG_FILENAME = "youtube-dl-scripts/config.ini"
 HOME = Path.home()
 THIS_DIR = Path(__file__).parent
+CONFIG_FILE = THIS_DIR / "config.ini"
 
 def get_config(config_section):
     config = ConfigParser(allow_no_value=False)
     
-    with open(CONFIG_FILENAME, "r+") as f:
+    with open(CONFIG_FILE, "r+") as f:
         config.read_file(f) 
         
         if config['DEFAULT']['home_dir'] == "":
@@ -20,10 +20,9 @@ def get_config(config_section):
         if config['DEFAULT']['this_dir'] == "":
             config['DEFAULT']['this_dir'] = THIS_DIR.as_posix()      
         
-    with open(CONFIG_FILENAME, "w+") as f:
+    with open(CONFIG_FILE, "w+") as f:
         config.write(f)
-        
-            
+    
     return dict(config.items(config_section))
     
 
@@ -60,7 +59,7 @@ def create_hook(input_byte_level):
                 f"{d.get('downloaded_bytes', -1)/byte_divisor:4.2f}{byte_level}    "
                 f"in    {int(d.get('elapsed', 0))//60:02}:{int(d.get('elapsed', 0))%60:02}"
             )
-            # print(f"{' ':1000}\r", end="") #Clear Line
+            
             print()
             print(format_string)
             total_downloaded += 1
@@ -72,7 +71,7 @@ def create_hook(input_byte_level):
                 f"{int(d.get('downloaded_bytes', 0)/d.get('total_bytes', 1)*100)}% "
                 f"ETA {d.get('eta', 0)//60:02}:{d.get('eta', 0)%60:02}"
             )
-            # print(f"{' ':1000}\r", end="") #Clear Line
+            
             print(" " * len('Downloaded: ') + f"{format_string}\r", end="")
             
     return progress_hook

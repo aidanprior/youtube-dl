@@ -1,9 +1,9 @@
 import sys
 from pathlib import Path
 
-import shared, update
+import youtube_dl_wrapper
 
-config = shared.get_config('VIDEO')
+config = youtube_dl_wrapper.get_config('VIDEO')
 
 INPUT_FILE = config['input_file']
 ARCHIVE_FILE = config['archive']
@@ -30,7 +30,7 @@ def download_playlist(playlist_id, start_number, end_number, lgr):
         'outtmpl': TEMPLATE,
         'download_archive': ARCHIVE_FILE,
         'logger': lgr,
-        'progress_hooks': [shared.create_hook("gB")]
+        'progress_hooks': [youtube_dl_wrapper.create_hook("gB")]
     }
 
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -38,11 +38,10 @@ def download_playlist(playlist_id, start_number, end_number, lgr):
 
 def main():
     global youtube_dl
-    lgr = shared.setup_loggers('VIDEO')
+    lgr = youtube_dl_wrapper.setup_loggers('VIDEO')
     
     #make sure youtube-dl is up to date
-    
-    youtube_dl = update.update_youtube_dl(True)
+    youtube_dl = youtube_dl_wrapper.update_youtube_dl(True)
     
     if not INPUT_FILE.exists():
         print()
@@ -64,7 +63,7 @@ def main():
             place = (place + 1)%2
     
     print()
-    print(f"Downloaded {shared.total_downloaded} videos")
+    print(f"Downloaded {youtube_dl_wrapper.total_downloaded} videos")
     
 if __name__ == "__main__":
     main()

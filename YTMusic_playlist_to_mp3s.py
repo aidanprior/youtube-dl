@@ -1,6 +1,6 @@
-import update, shared
+import youtube_dl_wrapper
 
-config = shared.get_config('AUDIO')
+config = youtube_dl_wrapper.get_config('AUDIO')
 
 ARCHIVE_FILE = config['archive']
 TEMPLATE = config['output_dir'] + "/" + config['template']
@@ -8,10 +8,10 @@ FFMPEG_BIN_DIR = config['ffmpeg_bin']
 PLAYLIST_URL = "https://music.youtube.com/playlist?list=" + config['playlist_id']
 
 
-lgr = shared.setup_loggers("AUDIO")
+lgr = youtube_dl_wrapper.setup_loggers("AUDIO")
 
 #make sure youtube-dl is up to date
-youtube_dl = update.update_youtube_dl(True)
+youtube_dl = youtube_dl_wrapper.update_youtube_dl(True)
 
 #get the playlist's name
 with youtube_dl.YoutubeDL({'quiet': True}) as ydl:
@@ -49,7 +49,7 @@ ydl_opts = {
         'key': 'EmbedThumbnail'
     }],
     'logger': lgr,
-    'progress_hooks': [shared.create_hook("mB")]
+    'progress_hooks': [youtube_dl_wrapper.create_hook("mB")]
 }
 
 #download playlist
@@ -57,6 +57,6 @@ with youtube_dl.YoutubeDL(ydl_opts) as ydl:
     ydl.download([PLAYLIST_URL])
 
 print()
-print("Downloaded %d mp3s" % shared.total_downloaded)
+print("Downloaded %d mp3s" % youtube_dl_wrapper.total_downloaded)
 print()
 input("Press Enter to Exit...")

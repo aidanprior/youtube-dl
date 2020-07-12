@@ -1,7 +1,5 @@
 import subprocess, sys, importlib
-from pathlib import Path
 
-TOP_DIR = Path(__file__).parent.parent.parent.resolve()
 
 def update_youtube_dl(printout):
     if printout:
@@ -19,7 +17,7 @@ def update_youtube_dl(printout):
 
 def update_this():
     cmd = (
-    f'python -m pip install --target="{TOP_DIR}" --upgrade ' 
+    f'python -m pip install --upgrade ' 
     f'git+https://github.com/aidanprior/youtube-dl.git'
     )
 
