@@ -16,20 +16,15 @@ def update_youtube_dl(printout):
     return importlib.import_module('youtube_dl')
 
 def update_this():
-    RELEASE = 'origin/master'
-    SRC_DIR = Path(__file__).parent.resolve()
+    TOP_DIR = Path(__file__).parent.parent.parent.resolve()
+    print(TOP_DIR)
     CMD = (
-    f'pip install --src="{SRC_DIR}" --upgrade -e ' 
-    f'git://github.com/aidanprior/youtube-dl.git@{RELEASE}#egg=youtube-dl' 
+    f'python -m pip install --target="{TOP_DIR}" --upgrade --ignore-installed ' 
+    f'https://github.com/aidanprior/youtube-dl/archive/master.zip' 
     )
-    # CMD = (
-    # f'pip install --src="{SRC_DIR}" --upgrade' 
-    # f'https://github.com/aidanprior/youtube-dl/archive/master.zip' 
-    # )
 
     subprocess.check_call(CMD)
 
-
 if __name__ == "__main__":
-    update_youtube_dl(True)
+    # update_youtube_dl(True)
     update_this()
