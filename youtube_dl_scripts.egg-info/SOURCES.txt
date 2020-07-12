@@ -1,6 +1,11 @@
 README.md
 setup.py
+youtube-dl-scripts/YTMusic_playlist_to_mp3s.py
+youtube-dl-scripts/YT_video_playlist.py
+youtube-dl-scripts/shared.py
+youtube-dl-scripts/update.py
 youtube_dl_scripts.egg-info/PKG-INFO
 youtube_dl_scripts.egg-info/SOURCES.txt
 youtube_dl_scripts.egg-info/dependency_links.txt
+youtube_dl_scripts.egg-info/requires.txt
 youtube_dl_scripts.egg-info/top_level.txt
