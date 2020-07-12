@@ -27,11 +27,12 @@ print(f"Downloading from {info.get('_type', '(Unkown)')}: {info.get('title', '(U
 print()
 
 ydl_opts = {
-    'verbose': False,
+    # 'verbose': True,
     'noplaylist': False,
     'writethumbnail': True,
     'format': 'bestaudio/best',
     'ffmpeg_location': FFMPEG_BIN_DIR,
+    # 'skip_download': True,
     'nooverwrites': True,
     'nopart': True,
     'ignoreerrors': True,

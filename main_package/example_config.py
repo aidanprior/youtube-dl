@@ -2,6 +2,8 @@
 from pathlib import Path
 HOME = Path.home()
 THIS_DIR = Path(__file__).parent.resolve()
+TOP_DIR = THIS_DIR.parent
+
 
 
 
@@ -17,17 +19,17 @@ PLAYLIST_URL_FIRST_HALF = "https://www.youtube.com/playlist?list="
 #USER PREFERENCES:
 AUDIO_OUTPUT_DIR = HOME / "Downloads/mp3s"
 AUDIO_OUTPUT_SHORT_TEMPLATE = "%(title)s.%(ext)s"
-YTMUSIC_PLAYLIST_URL = "https://music.youtube.com/playlist?list=lkasjdfioAIEaldks8"
+YTMUSIC_PLAYLIST_URL = "https://music.youtube.com/playlist?list=ADD_YOUR_OWN_URL!!!"
 
 AUDIO_OUTPUT_LOG_FILE = THIS_DIR / "Logs/YTMusic_playlist_to_mp3s.log"
-AUDIO_ARCHIVE_FILE = THIS_DIR / "Archives/Audio_Archive.txt"
+AUDIO_ARCHIVE_FILE = TOP_DIR / "Archives/Audio_Archive.txt"
 
 VIDEO_OUTPUT_DIR = HOME / "Videos/Youtube"
 VIDEO_INPUT_FILE = VIDEO_OUTPUT_DIR / "Playlists.txt"
 VIDEO_OUTPUT_SHORT_TEMPLATE = "%(playlist_title)s/%(playlist_index)s-%(title)s.%(ext)s"
 
 VIDEO_OUTPUT_LOG_FILE = THIS_DIR / "Logs/YT_video_playlists.log"
-VIDEO_ARCHIVE_FILE = THIS_DIR / "Archives/Video_Archive.txt"
+VIDEO_ARCHIVE_FILE = TOP_DIR / "Archives/Video_Archive.txt"
 
 
 
