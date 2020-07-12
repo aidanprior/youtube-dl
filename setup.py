@@ -6,6 +6,6 @@ setup(
     author_email="priorlyaidan@yahoo.com",
     url="https://github.com/aidanprior/youtube-dl",
     version='2.0',
-    scripts=['setup.py', 'shared.py', 'update.py', 'example_config.py', 'YT_video_playlist.py', 'YTMusic_playlist_to_mp3s.py'],
+    packages=['main_package'],
     license='GNU GPL3',
 )
