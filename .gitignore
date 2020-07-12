@@ -5,5 +5,6 @@ build/
 __pycache__/
 dist/
 youtube_dl_scripts*
+*egg-info/
 
 MANIFEST
