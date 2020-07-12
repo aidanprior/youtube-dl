@@ -1,11 +1,11 @@
 import update, shared
 
-config = shared.get_config()['AUDIO']
+config = shared.get_config('AUDIO')
 
 ARCHIVE_FILE = config['archive']
-TEMPLATE = config['output dir'] + "/" + config['template']
-FFMPEG_BIN_DIR = config['ffmpeg bin']
-PLAYLIST_URL = "https://music.youtube.com/playlist?list=" + config['playlist id']
+TEMPLATE = config['output_dir'] + "/" + config['template']
+FFMPEG_BIN_DIR = config['ffmpeg_bin']
+PLAYLIST_URL = "https://music.youtube.com/playlist?list=" + config['playlist_id']
 
 
 lgr = shared.setup_loggers("AUDIO")

@@ -4,23 +4,32 @@ from configparser import ConfigParser
 
 total_downloaded = 0
 
-def get_config():
-    global config
-    config = ConfigParser()
-    config.read('config.cfg')
+CONFIG_FILENAME = "youtube-dl-scripts/config.ini"
+HOME = Path.home()
+THIS_DIR = Path(__file__).parent
+
+def get_config(config_section):
+    config = ConfigParser(allow_no_value=False)
     
-    HOME = Path(config['DEFAULT'].get('home_dir', Path.home().resolve()))
-    THIS_DIR = Path(config['DEFAULT'].get('this_dir', Path(__file__).parent.resolve()))
-    
-    config['DEFAULT']['home_dir'] = HOME.as_posix()
-    config['DEFAULT']['this_dir'] = THIS_DIR.as_posix()
-    
-    return config
+    with open(CONFIG_FILENAME, "r+") as f:
+        config.read_file(f) 
+        
+        if config['DEFAULT']['home_dir'] == "":
+            config['DEFAULT']['home_dir'] = HOME.as_posix()
+            
+        if config['DEFAULT']['this_dir'] == "":
+            config['DEFAULT']['this_dir'] = THIS_DIR.as_posix()      
+        
+    with open(CONFIG_FILENAME, "w+") as f:
+        config.write(f)
+        
+            
+    return dict(config.items(config_section))
     
 
 
 def setup_loggers(config_section):
-    log_file = config[config_section]['log']
+    log_file = Path(get_config(config_section)['log'])
     
     c_handler = logging.StreamHandler()
     c_format = logging.Formatter('%(filename)s : %(lineno)d - %(levelname)s - %(message)s')

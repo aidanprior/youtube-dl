@@ -3,11 +3,11 @@ from pathlib import Path
 
 import shared, update
 
-config = shared.get_config()['VIDEO']
+config = shared.get_config('VIDEO')
 
-INPUT_FILE = config['input file']
+INPUT_FILE = config['input_file']
 ARCHIVE_FILE = config['archive']
-TEMPLATE = config['output dir'] + "/" + config['template']
+TEMPLATE = config['output_dir'] + "/" + config['template']
 
 PLAYLIST_URL = "https://www.youtube.com/playlist?list="
 

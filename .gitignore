@@ -8,3 +8,4 @@ youtube_dl_scripts.egg-info/
 youtube_dl_scripts-2.0.dist-info/
 
 MANIFEST
+config_saved.ini
