@@ -1,9 +1,5 @@
-YTMusic_playlist_to_mp3s.py
-YT_video_playlist.py
-example_config.py
+README.md
 setup.py
-shared.py
-update.py
 youtube_dl_scripts.egg-info/PKG-INFO
 youtube_dl_scripts.egg-info/SOURCES.txt
 youtube_dl_scripts.egg-info/dependency_links.txt
