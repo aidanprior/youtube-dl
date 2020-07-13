@@ -63,8 +63,11 @@ template = %%(playlist_title)s/%%(playlist_index)s-%%(title)s.%%(ext)s
     
     return dict(config.items(config_section))    
 
-def check_archive_file(media_type):
+def check_archive_file(media_type):  
     archive_file = THIS_DIR / 'data' / (media_type + "_Archive.txt")
+    if not archive_file.parent.exists()
+        Path.mkdir(archive_file.parent)
+    
     if not archive_file.exists():
         archive_file.touch()
     return archive_file.as_posix()
