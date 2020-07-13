@@ -30,7 +30,7 @@ template = %%(title)s.%%(ext)s
 input_file = %(output_dir)s/Playlists.txt
 output_dir = %(home_dir)s/Videos/Youtube
 template = %%(playlist_title)s/%%(playlist_index)s-%%(title)s.%%(ext)s
-                         """")
+                         """)
         print()
         input("Press ENTER to close")
         exit(1)
