@@ -11,8 +11,8 @@ lgr = youtube_dl_wrapper.setup_loggers(__file__)
 #make sure youtube-dl is up to date
 youtube_dl = youtube_dl_wrapper.update_youtube_dl(True)
 
-#make sure there is an archive file
-youtube_dl_wrapper.check_archive_file("Audio")
+#get the archive file
+archive = youtube_dl_wrapper.check_archive_file("Audio")
 
 #get the playlist's name
 with youtube_dl.YoutubeDL({'quiet': True}) as ydl:
@@ -39,7 +39,7 @@ ydl_opts = {
     'nopart': True,
     'ignoreerrors': True,
     'outtmpl': TEMPLATE,
-    'download_archive': 'data/Audio_Archive.txt',
+    'download_archive': archive,
     'postprocessors': [{
         'key': 'FFmpegExtractAudio',
         'preferredcodec': 'mp3',

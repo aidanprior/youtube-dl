@@ -28,7 +28,7 @@ def download_playlist(playlist_id, start_number, end_number, lgr):
         'playliststart': start_number,
         'playlistend': end_number,
         'outtmpl': TEMPLATE,
-        'download_archive': 'data/Video_Archive.txt',
+        'download_archive': archive,
         'logger': lgr,
         'progress_hooks': [youtube_dl_wrapper.create_hook("gB")]
     }
@@ -37,14 +37,14 @@ def download_playlist(playlist_id, start_number, end_number, lgr):
         ydl.download([PLAYLIST_URL + playlist_id])
 
 def main():
-    global youtube_dl
+    global youtube_dl, archive
     lgr = youtube_dl_wrapper.setup_loggers('VIDEO')
     
     #make sure youtube-dl is up to date
     youtube_dl = youtube_dl_wrapper.update_youtube_dl(True)
     
     #make sure there is an archive file
-    youtube_dl_wrapper.check_archive_file("Video")
+    archive = youtube_dl_wrapper.check_archive_file("Video")
 
     
     if not INPUT_FILE.exists():

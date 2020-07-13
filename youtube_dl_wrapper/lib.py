@@ -65,9 +65,11 @@ def check_archive_file(media_type):
     archive_file = THIS_DIR / 'data' / (media_type + "_Archive.txt")
     if not archive_file.exists():
         archive_file.touch()
+    return archive_file.as_posix()
 
 def setup_loggers(filename):
     log_file = THIS_DIR / 'data' / (filename + ".log")
+    log_file.resolve()
     
     if not Path(log_file).parent.exists():
         Path.mkdir(Path(log_file).parent)
