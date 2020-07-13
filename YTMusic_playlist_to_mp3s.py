@@ -2,16 +2,17 @@ import youtube_dl_wrapper
 
 config = youtube_dl_wrapper.get_config('AUDIO')
 
-ARCHIVE_FILE = config['archive']
 TEMPLATE = config['output_dir'] + "/" + config['template']
-FFMPEG_BIN_DIR = config['ffmpeg_bin']
+FFMPEG_BIN_DIR = youtube_dl_wrapper.get_config('SYSTEM')['ffmpeg_bin']
 PLAYLIST_URL = "https://music.youtube.com/playlist?list=" + config['playlist_id']
 
-
-lgr = youtube_dl_wrapper.setup_loggers("AUDIO")
+lgr = youtube_dl_wrapper.setup_loggers(__file__)
 
 #make sure youtube-dl is up to date
 youtube_dl = youtube_dl_wrapper.update_youtube_dl(True)
+
+#make sure there is an archive file
+youtube_dl_wrapper.check_archive_file("Audio")
 
 #get the playlist's name
 with youtube_dl.YoutubeDL({'quiet': True}) as ydl:
@@ -38,7 +39,7 @@ ydl_opts = {
     'nopart': True,
     'ignoreerrors': True,
     'outtmpl': TEMPLATE,
-    'download_archive': ARCHIVE_FILE,
+    'download_archive': 'data/Audio_Archive.txt',
     'postprocessors': [{
         'key': 'FFmpegExtractAudio',
         'preferredcodec': 'mp3',

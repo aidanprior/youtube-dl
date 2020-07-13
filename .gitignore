@@ -1,10 +1,11 @@
 .vscode/
-Archives/
-Logs/
 build/
 __pycache__/
 dist/
 youtube_dl_scripts*
 *egg-info/
+youtube_dl_scripts.egg-info/
 
-config.ini
+*.ini
+*.log
+*.txt
