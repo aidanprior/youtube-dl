@@ -8,3 +8,5 @@ youtube_dl_scripts.egg-info/
 
 youtube_dl_scripts/data/
 *.ini
+*.txt
+*.log
