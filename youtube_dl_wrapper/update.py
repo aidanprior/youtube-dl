@@ -5,7 +5,7 @@ def update_youtube_dl(printout):
     if printout:
         print("Checking for the latest youtube-dl version...")
         
-    output = subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'youtube-dl', '--user'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    output = subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'youtube-dl'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     stdout_str = output.stdout.decode('utf-8')
     
     if stdout_str[:42] != "Requirement already up-to-date: youtube-dl" and printout:
