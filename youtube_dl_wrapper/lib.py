@@ -65,7 +65,7 @@ template = %%(playlist_title)s/%%(playlist_index)s-%%(title)s.%%(ext)s
 
 def check_archive_file(media_type):  
     archive_file = THIS_DIR / 'data' / (media_type + "_Archive.txt")
-    if not archive_file.parent.exists()
+    if not archive_file.parent.exists():
         Path.mkdir(archive_file.parent)
     
     if not archive_file.exists():
