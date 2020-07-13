@@ -1,7 +1,0 @@
-12-Jul-20 18:45:59 - YoutubeDL.py : 523 - ERROR - ERROR: Conversion failed!
-12-Jul-20 18:45:59 - YoutubeDL.py : 523 - ERROR - ERROR: [Errno 2] No such file or directory: 'data/Audio_Archive.txt'
-12-Jul-20 18:46:11 - YoutubeDL.py : 523 - ERROR - ERROR: [Errno 2] No such file or directory: 'data/Audio_Archive.txt'
-12-Jul-20 18:47:05 - YoutubeDL.py : 523 - ERROR - ERROR: Conversion failed!
-12-Jul-20 18:47:05 - YoutubeDL.py : 523 - ERROR - ERROR: [Errno 2] No such file or directory: 'data\\Audio_Archive.txt'
-12-Jul-20 18:47:16 - YoutubeDL.py : 523 - ERROR - ERROR: [Errno 2] No such file or directory: 'data\\Audio_Archive.txt'
-12-Jul-20 18:49:35 - YoutubeDL.py : 523 - ERROR - ERROR: Conversion failed!
