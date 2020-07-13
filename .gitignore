@@ -7,5 +7,5 @@ youtube_dl_scripts*
 youtube_dl_scripts.egg-info/
 
 youtube_dl_scripts/*.ini
-youtube_dl_scripts/*.log
-youtube_dl_scripts/*.txt
+youtube_dl_scripts/data/*.log
+youtube_dl_scripts/data/*.txt
