@@ -14,23 +14,25 @@ def get_config(config_section):
     if not CONFIG_FILE.exists():
         print("No Config File Found. Generating one...")
         CONFIG_FILE.write_text("""
-                            [DEFAULT]
-                            home_dir = 
-                            this_dir = 
+[DEFAULT]
+home_dir = 
+this_dir = 
 
-                            [SYSTEM]
-                            ffmpeg_bin = 
+[SYSTEM]
+ffmpeg_bin = 
 
-                            [AUDIO]
-                            playlist_id = 
-                            output_dir = %(home_dir)s/Downloads/mp3s
-                            template = %%(title)s.%%(ext)s
+[AUDIO]
+playlist_id = 
+output_dir = %(home_dir)s/Downloads/mp3s
+template = %%(title)s.%%(ext)s
 
-                            [VIDEO]
-                            input_file = %(output_dir)s/Playlists.txt
-                            output_dir = %(home_dir)s/Videos/Youtube
-                            template = %%(playlist_title)s/%%(playlist_index)s-%%(title)s.%%(ext)s
-                         """)
+[VIDEO]
+input_file = %(output_dir)s/Playlists.txt
+output_dir = %(home_dir)s/Videos/Youtube
+template = %%(playlist_title)s/%%(playlist_index)s-%%(title)s.%%(ext)s
+                         """")
+        print()
+        input("Press ENTER to close")
         exit(1)
     
     with open(CONFIG_FILE, "r+") as f:
