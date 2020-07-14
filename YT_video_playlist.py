@@ -3,10 +3,9 @@ from pathlib import Path
 
 import youtube_dl_wrapper
 
-config = youtube_dl_wrapper.get_config('VIDEO')
+config = youtube_dl_wrapper.get_config(__file__)
 
 INPUT_FILE = config['input_file']
-ARCHIVE_FILE = config['archive']
 TEMPLATE = config['output_dir'] + "/" + config['template']
 
 PLAYLIST_URL = "https://www.youtube.com/playlist?list="
