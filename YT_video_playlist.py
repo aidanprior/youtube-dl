@@ -29,6 +29,7 @@ def download_playlist(playlist_id, start_number, end_number, lgr):
         'outtmpl': TEMPLATE,
         'download_archive': archive,
         'logger': lgr,
+        'continuedl': True,
         'progress_hooks': [youtube_dl_wrapper.create_hook("gB")]
     }
 
@@ -37,7 +38,7 @@ def download_playlist(playlist_id, start_number, end_number, lgr):
 
 def main():
     global youtube_dl, archive
-    lgr = youtube_dl_wrapper.setup_loggers('VIDEO')
+    lgr = youtube_dl_wrapper.setup_loggers(__file__)
     
     #make sure youtube-dl is up to date
     youtube_dl = youtube_dl_wrapper.update_youtube_dl(True)
@@ -66,7 +67,7 @@ def main():
             place = (place + 1)%2
     
     print()
-    print(f"Downloaded {youtube_dl_wrapper.total_downloaded} videos")
+    print(f"Downloaded {youtube_dl_wrapper.lib.total_downloaded} videos")
     
 if __name__ == "__main__":
     main()

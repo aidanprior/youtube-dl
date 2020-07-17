@@ -38,14 +38,14 @@ template = %%(playlist_title)s/%%(playlist_index)s-%%(title)s.%%(ext)s
     with open(CONFIG_FILE, "r+") as f:
         config.read_file(f) 
         
-        if config['DEFAULT']['home_dir'] == "":
+        if config['DEFAULT']['home_dir'] == ""or not Path(config['DEFAULT']['home_dir']).exists():
             config['DEFAULT']['home_dir'] = HOME.as_posix()
             
-        if config['DEFAULT']['this_dir'] == "":
+        if config['DEFAULT']['this_dir'] == "" or not Path(config['DEFAULT']['this_dir']).exists():
             config['DEFAULT']['this_dir'] = THIS_DIR.as_posix()
             
-        if config_section == 'SYSTEM' and config['SYSTEM']['ffmpeg_bin'] == "":
-            print("ERROR: No Value Found for ffmpeg_bin in the config file")
+        if config_section == 'SYSTEM' and config['SYSTEM']['ffmpeg_bin'] == "" or not Path(config['SYSTEM']['ffmpeg_bin']).exists():
+            print("ERROR: No Valid Value Found for ffmpeg_bin in the config file")
             print("Please download ffmpeg and supply the path to ffmpeg/bin in the config file")
             print()
             input("Press ENTER to close")
@@ -82,16 +82,18 @@ def setup_loggers(filename):
     c_handler = logging.StreamHandler()
     c_format = logging.Formatter('%(filename)s : %(lineno)d - %(levelname)s - %(message)s')
     c_handler.setFormatter(c_format)
-    c_handler.setLevel(logging.CRITICAL)
+    c_handler.setLevel(logging.ERROR)
 
     f_handler = logging.FileHandler(log_file)
-    f_format = logging.Formatter('%(asctime)s - %(filename)s : %(lineno)d - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+    f_format = logging.Formatter('%(asctime)s - %(filename)s : %(lineno)d - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
     f_handler.setFormatter(f_format)
     f_handler.setLevel(logging.DEBUG)
 
     lgr = logging.getLogger(__name__)
     lgr.addHandler(c_handler)
     lgr.addHandler(f_handler)
+    
+    lgr.debug(f"{log_file =}")
     
     return lgr
 

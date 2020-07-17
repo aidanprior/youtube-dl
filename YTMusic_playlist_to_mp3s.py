@@ -46,10 +46,11 @@ ydl_opts = {
         'preferredquality': '256',
     }, {
         'key': 'FFmpegMetadata'
-    }, {
-        'key': 'EmbedThumbnail'
+    # }, {
+    #     'key': 'EmbedThumbnail'
     }],
     'logger': lgr,
+    # 'logtostderr': True,
     'progress_hooks': [youtube_dl_wrapper.create_hook("mB")]
 }
 
@@ -58,6 +59,6 @@ with youtube_dl.YoutubeDL(ydl_opts) as ydl:
     ydl.download([PLAYLIST_URL])
 
 print()
-print("Downloaded %d mp3s" % youtube_dl_wrapper.total_downloaded)
+print("Downloaded %d mp3s" % youtube_dl_wrapper.lib.total_downloaded)
 print()
 input("Press Enter to Exit...")
