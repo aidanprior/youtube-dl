@@ -11,6 +11,7 @@ from PyQt5.QtCore import QDir, QThread, pyqtSignal
 from PyQt5.QtGui import QIcon
 
 from ui import Ui_MainWindow
+from update import update_youtube_dl
 
 class Download_Thread(QThread):
     
@@ -32,7 +33,8 @@ class Download_Thread(QThread):
     def run(self):
         with youtube_dl.YoutubeDL(self.options) as ydl:
             ydl.download([self.url])
-        
+            
+                    
 
 class Ui_Controller():
     def __init__(self, start_config=None):
@@ -54,6 +56,8 @@ class Ui_Controller():
             raise Exception("Passed Config File Path doesn't exist!")
         else:
              self._load_options(Path(start_config))
+             
+        update_youtube_dl(True)
         
     
     def _create_dirs(self):
@@ -256,9 +260,12 @@ class Ui_Controller():
         print(f"{options =}")
         
         self.download_thread.wait()
+        self.ui.downloaded_list.addItem("Finished Downloading")
+        self.ui.downloaded_list.addItem("")
         self.download_thread.fill(url, options)
         self.download_thread.start()
         self.download_thread.setPriority(QThread.HighestPriority)
+        
         
 
 def main(start_config=None):
