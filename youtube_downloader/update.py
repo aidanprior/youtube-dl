@@ -18,7 +18,7 @@ def update_youtube_dl(printout):
 def update_this():
     cmd = (
     f'python -m pip install --upgrade ' 
-    f'https://github.com/aidanprior/youtube-dl/archive/master.zip'
+    f'https://github.com/aidanprior/youtube-downloader/archive/master.zip'
     )
 
     subprocess.check_call(cmd)
