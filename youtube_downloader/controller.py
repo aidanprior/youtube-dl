@@ -20,6 +20,7 @@ class Download_Thread(QThread):
     percent_signal = pyqtSignal(int)
     filename_signal = pyqtSignal(str)
     list_item_string_signal = pyqtSignal(str)
+    finished_downloading_signal = pyqtSignal(int)
     
     def __init__(self, parent=None):
         super(Download_Thread, self).__init__(parent=parent)
@@ -32,7 +33,9 @@ class Download_Thread(QThread):
         
     def run(self):
         with youtube_dl.YoutubeDL(self.options) as ydl:
-            ydl.download([self.url])
+            output = ydl.download([self.url])
+        self.finished_downloading_signal.emit(output)
+        
             
                     
 
@@ -87,8 +90,8 @@ class Ui_Controller():
                                         "Config Files (*.cfg)", options= QFileDialog.Options()))
         self.ui.plists_file_browse_button.clicked.connect(get_plists_file)
         
-        self.ui.load_options_button.clicked.connect(self._load_options)
-        self.ui.save_options_button.clicked.connect(self._save_options)
+        self.ui.load_options_button.clicked.connect(lambda: self._load_options())
+        self.ui.save_options_button.clicked.connect(lambda: self._save_options())
         
         self.ui.download_now_button.clicked.connect(self._start_download)
         
@@ -97,6 +100,7 @@ class Ui_Controller():
         self.download_thread.percent_signal.connect(self.ui.download_progressbar.setValue)
         self.download_thread.filename_signal.connect(self.ui.download_filename_label.setText)
         self.download_thread.list_item_string_signal.connect(self.ui.downloaded_list.addItem)
+        self.download_thread.finished_downloading_signal.connect(lambda: self.ui.downloaded_list.addItem("Finished Downloading\n"))
         
         self.app.aboutToQuit.connect(lambda: self._save_options(self.default_config_location))
         
@@ -260,8 +264,6 @@ class Ui_Controller():
         print(f"{options =}")
         
         self.download_thread.wait()
-        self.ui.downloaded_list.addItem("Finished Downloading")
-        self.ui.downloaded_list.addItem("")
         self.download_thread.fill(url, options)
         self.download_thread.start()
         self.download_thread.setPriority(QThread.HighestPriority)
