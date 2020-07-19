@@ -1,4 +1,4 @@
-# youtube-dl
+# youtube-downloader
 A simple GUI app for downloading videos and mp3s from Youtube with youtube-dl
 
 The script automatically updates youtube-dl
