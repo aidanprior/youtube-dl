@@ -11,3 +11,4 @@ youtube_dl_scripts/data/
 *.txt
 *.log
 *.cfg
+*.ico

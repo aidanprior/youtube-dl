@@ -1,44 +1,86 @@
 import sys
 import youtube_dl
+import threading
+
 from pathlib import Path
 from configparser import ConfigParser
-from contextlib import redirect_stdout
+from argparse import ArgumentParser
+
 from PyQt5.QtWidgets import QFileDialog, QApplication, QMainWindow
+from PyQt5.QtCore import QDir, QThread, pyqtSignal
+from PyQt5.QtGui import QIcon
 
 from ui import Ui_MainWindow
 
+class Download_Thread(QThread):
+    
+    eta_signal = pyqtSignal(str)
+    speed_signal = pyqtSignal(str)
+    percent_signal = pyqtSignal(int)
+    filename_signal = pyqtSignal(str)
+    list_item_string_signal = pyqtSignal(str)
+    
+    def __init__(self, parent=None):
+        super(Download_Thread, self).__init__(parent=parent)
+        self.emittedFilename = False
 
-class ui_controller():
-    def __init__(self):
+    def fill(self, url, options):
+        self.url = url
+        self.options = options
+        self.emittedFilename = False
+        
+    def run(self):
+        with youtube_dl.YoutubeDL(self.options) as ydl:
+            ydl.download([self.url])
+        
+
+class Ui_Controller():
+    def __init__(self, start_config=None):
         self._create_dirs()
         
         self.app = QApplication(sys.argv)
         self.MainWindow = QMainWindow()
+        self.MainWindow.setWindowIcon(QIcon("data/icon.ico"))
         self.ui = Ui_MainWindow()
-        self.config = ConfigParser()
+                
+        self.download_thread = Download_Thread()
         
         self.ui.setupUi(self.MainWindow)
         self._setup_connections()
         
+        if start_config == None:
+            self._load_options(self.default_config_location)
+        elif not Path(start_config).exists():
+            raise Exception("Passed Config File Path doesn't exist!")
+        else:
+             self._load_options(Path(start_config))
+        
     
     def _create_dirs(self):
         self.data_dir = Path(__file__).parent / 'data'
+        self.archive_dir = self.data_dir / 'archives'
         self.user_options_dir = self.data_dir / 'User Options'
         self.plist_inputs_dir = self.data_dir / 'Multi-Playlist Configs'
+        self.default_config_location = self.data_dir / "last_opened_options.cfg"
         
+        self.archive_dir.mkdir(exist_ok=True)
         self.data_dir.mkdir(exist_ok=True)
         self.user_options_dir.mkdir(exist_ok=True)
         self.plist_inputs_dir.mkdir(exist_ok=True)
     
     
     def _setup_connections(self):
-        get_download_folder = lambda: self.ui.download_folder_input.setText(self._pick_folder(str(Path().home())))
+        get_download_folder = lambda: self.ui.download_folder_input.setText(
+            QFileDialog.getExistingDirectory(self.MainWindow, "Set Download Folder", (Path.home()/'Downloads').as_posix()))
         self.ui.download_folder_browse_button.clicked.connect(get_download_folder)
         
-        get_ffmpeg_bin = lambda: self.ui.ffmpeg_bin_input.setText(self._pick_folder(str(Path().home())))
+        get_ffmpeg_bin = lambda: self.ui.ffmpeg_bin_input.setText(
+            QFileDialog.getExistingDirectory(self.MainWindow, "Set FFmpeg Bin", QDir.rootPath()))
         self.ui.ffmpeg_bin_browse_button.clicked.connect(get_ffmpeg_bin)
         
-        get_plists_file = lambda: self.ui.plists_file_input.setText(self._pick_file(str(self.user_options_dir)))
+        get_plists_file = lambda: self.ui.plists_file_input.setText(
+            QFileDialog.getOpenFileName(self.MainWindow, "Load Multi-Playlist Config", str(self.plist_inputs_dir),  
+                                        "Config Files (*.cfg)", options= QFileDialog.Options()))
         self.ui.plists_file_browse_button.clicked.connect(get_plists_file)
         
         self.ui.load_options_button.clicked.connect(self._load_options)
@@ -46,113 +88,112 @@ class ui_controller():
         
         self.ui.download_now_button.clicked.connect(self._start_download)
         
+        self.download_thread.eta_signal.connect(self.ui.eta_label.setText)
+        self.download_thread.speed_signal.connect(self.ui.speed_label.setText)
+        self.download_thread.percent_signal.connect(self.ui.download_progressbar.setValue)
+        self.download_thread.filename_signal.connect(self.ui.download_filename_label.setText)
+        self.download_thread.list_item_string_signal.connect(self.ui.downloaded_list.addItem)
+        
+        self.app.aboutToQuit.connect(lambda: self._save_options(self.default_config_location))
+        
     
     def start(self):
         self.MainWindow.show()
         sys.exit(self.app.exec_())
         
-    def _load_options(self):
-        load_dialog = QFileDialog()
-        load_dialog.setAcceptMode(QFileDialog.AcceptOpen)
-        load_dialog.setFileMode(QFileDialog.ExistingFile)
-        load_dialog.setViewMode(QFileDialog.List)
-        load_dialog.setFilter("Config files (*.cfg)")
-        load_dialog.setDirectory(str(self.user_options_dir))
+    def _load_options(self, config_file=None):
+        if config_file == None:
+            fileName, _ = QFileDialog.getOpenFileName(self.MainWindow,
+                                                  "Load Options",
+                                                  str(self.user_options_dir),
+                                                  "Config Files (*.cfg)", 
+                                                  options= QFileDialog.Options())
+        else:
+            fileName = config_file
+            if not fileName.exists():
+                return
         
-        if load_dialog.exec_():
-            filename = load_dialog.selectedFiles()[0]
-            with open(filename, 'r') as f:
-                self.config.read_file(f)
+        if fileName:
+            config = ConfigParser()
+            with open(fileName, 'r') as f:
+                config.read_file(f)
                 
-                checkboxes = self.config['checkboxes']
+                checkboxes = config['checkboxes']
                 self.ui.archive_checkbox.setChecked(checkboxes.getboolean('use_archive'))
                 self.ui.mp3_convert_checkbox.setChecked(checkboxes.getboolean('mp3_convert'))
                 self.ui.plist_checkbox.setChecked(checkboxes.getboolean('plist'))
                 
-                paths = self.config['paths']
+                paths = config['paths']
                 self.ui.download_folder_input.setText(paths['download_folder'])
                 self.ui.plists_file_input.setText(paths['plist_input_file'])
                 self.ui.template_input.setText(paths['template'])
+                self.ui.ffmpeg_bin_input.setText(paths['ffmpeg_bin'])
                 
-                self.ui.url_input.setText(self.config['DEFAULT']['id'])
+                self.ui.url_input.setText(config['DEFAULT']['url'])
                 
                 
-    def _save_options(self):
-        save_dialog = QFileDialog()
-        save_dialog.setAcceptMode(QFileDialog.AcceptSave)
-        save_dialog.setFileMode(QFileDialog.AnyFile)
-        save_dialog.setViewMode(QFileDialog.List)
-        # save_dialog.setFilter("Text files (*.cfg)")
-        save_dialog.setDirectory(str(self.user_options_dir))
+    def _save_options(self, config_file=None):
+        if config_file == None:
+            fileName, _ = QFileDialog.getSaveFileName(self.MainWindow,
+                                                  "Save Options",
+                                                  str(self.user_options_dir),
+                                                  "Config Files (*.cfg)", 
+                                                  options= QFileDialog.Options())
+        else:
+            fileName = config_file
         
-        if save_dialog.exec_():
-            filename = save_dialog.selectedFiles()[0]
-            with open(filename, 'w') as f:
-                self.config.read_file(f)
-                
-                checkboxes = self.config['checkboxes']
-                checkboxes['use_archive'] = self.ui.archive_checkbox.isChecked()
-                checkboxes['mp3_convert'] = self.ui.mp3_convert_checkbox.isChecked()
-                checkboxes['plist'] = self.ui.plist_checkbox.isChecked()
-                
-                paths = self.config['paths']
-                paths['download_folder'] = self.ui.download_folder_input.text()
-                paths['plist_input_file'] = self.ui.plists_file_input.text()
-                paths['template'] = self.ui.template_input.text()
-                
-                self.config['DEFAULT']['url'] = self.ui.url_input.text()
-                
-                
-    def _pick_folder(self, start_dir):
-        load_dialog = QFileDialog()
-        load_dialog.setFileMode(QFileDialog.Directory)
-        load_dialog.setOption(QFileDialog.ShowDirsOnly)
-        load_dialog.setAcceptMode(QFileDialog.AcceptOpen)
-        load_dialog.setViewMode(QFileDialog.List)
-        load_dialog.setDirectory(start_dir)
-                                 
-        if load_dialog.exec_():
-            return load_dialog.selectedFiles()[0]
+        if fileName:
+            config = ConfigParser()
             
+            config['checkboxes'] = {'use_archive': self.ui.archive_checkbox.isChecked(),
+                                            'mp3_convert': self.ui.mp3_convert_checkbox.isChecked(),
+                                            'plist': self.ui.plist_checkbox.isChecked()
+                                    }
             
-    def _pick_file(self, start_dir):
-        load_dialog = QFileDialog()
-        load_dialog.setFileMode(QFileDialog.ExistingFile)
-        load_dialog.setAcceptMode(QFileDialog.AcceptOpen)
-        load_dialog.setViewMode(QFileDialog.List)
-        load_dialog.setFilter("Config files (*.cfg)")
-        load_dialog.setDirectory(start_dir)
-                                 
-        if load_dialog.exec_():
-            return load_dialog.selectedFiles()[0]
+            config['paths'] = {'download_folder': self.ui.download_folder_input.text(),
+                               'plist_input_file': self.ui.plists_file_input.text(),
+                               'template': self.ui.template_input.text().replace('%', '%%'),
+                               'ffmpeg_bin': self.ui.ffmpeg_bin_input.text()
+                                }
+            
+            config['DEFAULT'] = {'url': self.ui.url_input.text()}
+            
+            with open(fileName, 'w') as f:
+                config.write(f)
+
         
-    def _progress_hook(self, d):        
+    def _progress_hook(self, d): 
         if d['status'] == 'finished'and d.get('filename', False):
-            k_bytes = d.get('downloaded_bytes', 0)/1024
-            byte_str = "kB" if k_bytes < 1024 else "gB"
-            k_bytes = k_bytes if k_bytes < 1024 else k_bytes/1024
+            k_bytes = d.get('downloaded_bytes', 0)/1000
+            byte_str = "KB" if k_bytes < 1000 else "GB"
+            k_bytes = k_bytes if k_bytes < 1000 else k_bytes/1000
+            filename = Path(d['filename']).stem
             
             format_string = (
-                f"Downloaded: {Path(d['filename']).stem:32.32} "
-                f"{k_bytes:4.2f} {byte_str} "
-                f"in {int(d.get('elapsed', 0))//60:02}:{int(d.get('elapsed', 0))%60:02}"
+                f"Downloaded: {filename:32.32}{'...' if len(filename) > 32 else '   '}\t"
+                f"{k_bytes:4.2f} {byte_str}\t"
+                f"{int(d.get('elapsed', 0))//60:02}:{int(d.get('elapsed', 0))%60:02}"
             )
             
-            self.ui.downloaded_list.addItem(format_string)
+            self.download_thread.list_item_string_signal.emit(format_string)
         
         elif d['status'] == 'downloading' and d.get('filename', False):
             filename = f" {Path(d['filename']).stem} "
-            eta = f"ETA {d.get('eta', 0)//60:02}:{d.get('eta', 0)%60:02}"
-            speed = f"{d.get('speed')/1024:2.2} kB/s"
-            percent = int(d.get('downloaded_bytes', 0)/d.get('total_bytes', 1)*100)
+            eta = f"ETA {d['eta']//60:02}:{d['eta']%60:02}" if d.get('eta', False) else "ETA --:--"
+            speed = f"{d['speed']/1000:2.2f} KB/s" if d.get('speed', False) else "---- KB/s"
+            percent = int(d['downloaded_bytes']/d['total_bytes']*100) if d.get('downloaded_bytes', False) and d.get('total_bytes', False) else 0
             
-            self.ui.download_filename_label.setText(filename)
-            self.ui.eta_label.setText(eta)
-            self.ui.speed_label.setText(speed)
-            self.ui.download_progressbar.setValue(percent)
+            self.download_thread.eta_signal.emit(eta)
+            self.download_thread.speed_signal.emit(speed)
+            if percent > 0:
+                self.download_thread.percent_signal.emit(percent)
+            if not self.download_thread.emittedFilename:
+                self.download_thread.filename_signal.emit(filename)
+                self.download_thread.emittedFilename = True
                     
             
     def _start_download(self):
+        url = self.ui.url_input.text()
         options = {
             'verbose': True,
             'noplaylist': True,
@@ -184,42 +225,52 @@ class ui_controller():
             
         if self.ui.archive_checkbox.isChecked():
             archive_file = "audio_archive.txt" if self.ui.mp3_convert_checkbox.isChecked() else "video_archive.txt"
-            archive_file = self.data_dir / "archives" / archive_file
+            archive_file = self.archive_dir / archive_file
+            archive_file.touch(exist_ok=True)
             options['download_archive'] = str(archive_file)
+        
+        if self.ui.download_folder_input.text() == "":
+            template = (Path.home() / 'Downloads/').as_posix()
+        else:
+            template = self.ui.download_folder_input.text() + '/'
             
         if self.ui.template_input.text() != "":
-            template = self.ui.download_folder_input.text()
             template = str(Path().home() / 'Downloads') if template == "" else template
             template += self.ui.template_input.text()
-            options['outtmpl'] = template
+        else:
+            template += "%(title)s-%(id)s"
+        
+        options['outtmpl'] = template
             
         if self.ui.plists_file_input.text() != "":
+            config = ConfigParser()
             with open(self.ui.plists_file_input.text(), 'r') as f:
-                self.config.read_file(f)
-                for playlist_name in self.config.sections():
-                    playlist = self.config[playlist_name]
+                config.read_file(f)
+                for playlist_name in config.sections():
+                    playlist = config[playlist_name]
                     options['playliststart'] = playlist.getint('start')
                     options['playlistend'] = playlist.getint('end')
                     options['noplaylist'] = False
                     url = playlist['url']
-                
-                    self._download(url, options)
-        else:
-            self._download(self.ui.url_input.text(), options)
-            
         
-    def _download(self, url, options):
-        with open('data/youtube-dl.log', 'a+') as f:
-            with redirect_stdout(f):
-                print('\n\nSTARTING YOUTUBE-DL...\n\n')
-                with youtube_dl.YoutubeDL(options) as ydl:
-                    ydl.download(url)
+        print(f"{options =}")
+        
+        self.download_thread.wait()
+        self.download_thread.fill(url, options)
+        self.download_thread.start()
+        self.download_thread.setPriority(QThread.HighestPriority)
         
 
-def main():
-    controller = ui_controller()
+def main(start_config=None):
+    controller = Ui_Controller(start_config)
     controller.start()
     
 if __name__ == "__main__":
-    main()
+    parser = ArgumentParser(prog="Youtube Downloader", description="A simple GUI app for downloading videos and mp3s from Youtube with youtube-dl")
+    parser.add_argument("-c", "--config", metavar="CONFIG_FILE", help="The .cfg file to load the application with")
+    args = parser.parse_args()
+    if args.config:
+        main(args.config)
+    else:
+        main()
     
