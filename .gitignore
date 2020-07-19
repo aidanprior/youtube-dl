@@ -2,6 +2,9 @@
 build/
 __pycache__/
 dist/
-youtube_downloader/data/
 youtube_downloader.egg-info/
-!icon.ico
+
+*.txt
+*.cfg
+*.log
+!setup.cfg
