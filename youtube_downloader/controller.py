@@ -54,6 +54,8 @@ class Ui_Controller():
         
         if start_config == None:
             self._load_options(self.default_config_location)
+        elif start_config == "EMPTY":
+            pass
         elif not (self.user_options_dir / start_config).exists():
             raise Exception(f"Passed Config File Path doesn't exist! ({self.user_options_dir / start_config})")
         else:
