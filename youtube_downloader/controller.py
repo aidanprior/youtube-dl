@@ -55,10 +55,10 @@ class Ui_Controller():
         
         if start_config == None:
             self._load_options(self.default_config_location)
-        elif not Path(start_config).exists():
+        elif not (self.user_options_dir / start_config).exists():
             raise Exception("Passed Config File Path doesn't exist!")
         else:
-             self._load_options(Path(start_config))
+             self._load_options(self.user_options_dir / start_config)
              
         update_youtube_dl(True)
         
