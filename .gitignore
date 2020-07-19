@@ -3,4 +3,4 @@ build/
 __pycache__/
 dist/
 youtube_downloader/data/
-youtube_dl_scripts.egg-info/
+youtube_downloader.egg-info/

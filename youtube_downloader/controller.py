@@ -1,6 +1,6 @@
 import sys
 import youtube_dl
-import threading
+import datetime
 
 from pathlib import Path
 from configparser import ConfigParser
@@ -273,10 +273,11 @@ class Ui_Controller():
 def main(start_config=None, log_file=None):
     if log_file != None:
         sys.stdout = open(log_file, "a")
-        print("\n\nSTARTING ANEW\n")
+        x = datetime.datetime.now()
+        print(f"\n\nRun:\t{x.year}/{x.month}/{x.day}  {x.hour:02}:{x.minute:02}:{x.second:02}\n")
         
-    controller = Ui_Controller(start_config)
-    controller.start()
+    contr = Ui_Controller(start_config)
+    contr.start()
     
 if __name__ == "__main__":
     main()
