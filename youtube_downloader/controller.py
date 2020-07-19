@@ -11,7 +11,7 @@ from PyQt5.QtCore import QDir, QThread, pyqtSignal
 from PyQt5.QtGui import QIcon
 
 from .ui import Ui_MainWindow
-from .update import update_youtube_dl
+from .update import update_youtube_dl, update_this
 
 class Download_Thread(QThread):
     
@@ -95,6 +95,8 @@ class Ui_Controller():
         self.ui.save_options_button.clicked.connect(lambda: self._save_options())
         
         self.ui.download_now_button.clicked.connect(self._start_download)
+        
+        self.ui.update_button.clicked.connect(update_this)
         
         self.download_thread.eta_signal.connect(self.ui.eta_label.setText)
         self.download_thread.speed_signal.connect(self.ui.speed_label.setText)

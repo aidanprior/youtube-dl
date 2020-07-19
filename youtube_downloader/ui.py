@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'youtube_downloader\main.ui'
+# Form implementation generated from reading ui file '.\youtube_downloader\main.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.2
 #
@@ -23,7 +23,7 @@ class Ui_MainWindow(object):
         font.setFamily("Arial")
         MainWindow.setFont(font)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("youtube_downloader\\data/icon.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(".\\youtube_downloader\\data/icon.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         MainWindow.setToolButtonStyle(QtCore.Qt.ToolButtonFollowStyle)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -294,6 +294,9 @@ class Ui_MainWindow(object):
         self.plist_checkbox.setFont(font)
         self.plist_checkbox.setObjectName("plist_checkbox")
         self.options_right_layout.addWidget(self.plist_checkbox)
+        self.pushButton = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton.setObjectName("pushButton")
+        self.options_right_layout.addWidget(self.pushButton)
         self.options_layout.addLayout(self.options_right_layout)
         self.verticalLayout.addLayout(self.options_layout)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -323,6 +326,7 @@ class Ui_MainWindow(object):
         self.archive_checkbox.setText(_translate("MainWindow", "Use Archive"))
         self.mp3_convert_checkbox.setText(_translate("MainWindow", "Convert to mp3"))
         self.plist_checkbox.setText(_translate("MainWindow", "Download Playlist"))
+        self.pushButton.setText(_translate("MainWindow", " Update Program"))
 
 
 if __name__ == "__main__":
