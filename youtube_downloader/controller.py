@@ -10,8 +10,8 @@ from PyQt5.QtWidgets import QFileDialog, QApplication, QMainWindow
 from PyQt5.QtCore import QDir, QThread, pyqtSignal
 from PyQt5.QtGui import QIcon
 
-from ui import Ui_MainWindow
-from update import update_youtube_dl
+from .ui import Ui_MainWindow
+from .update import update_youtube_dl
 
 class Download_Thread(QThread):
     
