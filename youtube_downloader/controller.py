@@ -35,8 +35,7 @@ class Download_Thread(QThread):
         with youtube_dl.YoutubeDL(self.options) as ydl:
             output = ydl.download([self.url])
         self.finished_downloading_signal.emit(output)
-        
-            
+                    
                     
 
 class Ui_Controller():
@@ -56,7 +55,7 @@ class Ui_Controller():
         if start_config == None:
             self._load_options(self.default_config_location)
         elif not (self.user_options_dir / start_config).exists():
-            raise Exception("Passed Config File Path doesn't exist!")
+            raise Exception(f"Passed Config File Path doesn't exist! ({self.user_options_dir / start_config})")
         else:
              self._load_options(self.user_options_dir / start_config)
              
