@@ -270,16 +270,14 @@ class Ui_Controller():
         
         
 
-def main(start_config=None):
+def main(start_config=None, log_file=None):
+    if log_file != None:
+        sys.stdout = open(log_file, "a")
+        print("\n\nSTARTING ANEW\n")
+        
     controller = Ui_Controller(start_config)
     controller.start()
     
 if __name__ == "__main__":
-    parser = ArgumentParser(prog="Youtube Downloader", description="A simple GUI app for downloading videos and mp3s from Youtube with youtube-dl")
-    parser.add_argument("-c", "--config", metavar="CONFIG_FILE", help="The .cfg file to load the application with")
-    args = parser.parse_args()
-    if args.config:
-        main(args.config)
-    else:
-        main()
+    main()
     
