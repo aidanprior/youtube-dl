@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from controller import main
+from .controller import main
 from pathlib import Path
 
 if __name__ == "__main__":
