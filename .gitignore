@@ -10,3 +10,4 @@ youtube_dl_scripts/data/
 *.ini
 *.txt
 *.log
+*.cfg

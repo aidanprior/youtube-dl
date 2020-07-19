@@ -1,11 +1,11 @@
 import sys
 from pathlib import Path
-
 import youtube_dl_wrapper
+import youtube_dl
 
-config = youtube_dl_wrapper.get_config(__file__)
+config = youtube_dl_wrapper.get_config('VIDEO')
 
-INPUT_FILE = config['input_file']
+INPUT_FILE = Path(config['input_file'])
 TEMPLATE = config['output_dir'] + "/" + config['template']
 
 PLAYLIST_URL = "https://www.youtube.com/playlist?list="
@@ -41,18 +41,18 @@ def main():
     lgr = youtube_dl_wrapper.setup_loggers(__file__)
     
     #make sure youtube-dl is up to date
-    youtube_dl = youtube_dl_wrapper.update_youtube_dl(True)
+    # youtube_dl = youtube_dl_wrapper.update_youtube_dl(True)
     
     #make sure there is an archive file
     archive = youtube_dl_wrapper.check_archive_file("Video")
 
-    
+    #make sure there is an input file
     if not INPUT_FILE.exists():
         print()
         print(f"Couldn't find the input file: {INPUT_FILE}")
         print()
         input("Press ENTER to close")
-        sys.exit(1)
+        sys.exit(1) 
     
     with Path(INPUT_FILE).open() as input_file:
         place = 0
