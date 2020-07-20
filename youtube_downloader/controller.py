@@ -34,13 +34,17 @@ class Download_Thread(QThread):
     def run(self):
         with youtube_dl.YoutubeDL(self.options) as ydl:
             output = ydl.download([self.url])
-        self.finished_downloading_signal.emit(output)
+            self.finished_downloading_signal.emit(output)
+            return
                     
                     
 
 class Ui_Controller():
     def __init__(self, start_config=None):
         self._create_dirs()
+        self.options_list = []
+        self.urls = []
+        self.plist_names = []
         
         self.app = QApplication(sys.argv)
         self.MainWindow = QMainWindow()
@@ -88,13 +92,13 @@ class Ui_Controller():
         
         get_plists_file = lambda: self.ui.plists_file_input.setText(
             QFileDialog.getOpenFileName(self.MainWindow, "Load Multi-Playlist Config", str(self.plist_inputs_dir),  
-                                        "Config Files (*.cfg)", options= QFileDialog.Options()))
+                                        "Config Files (*.cfg)", options= QFileDialog.Options() )[0])
         self.ui.plists_file_browse_button.clicked.connect(get_plists_file)
         
         self.ui.load_options_button.clicked.connect(lambda: self._load_options())
         self.ui.save_options_button.clicked.connect(lambda: self._save_options())
         
-        self.ui.download_now_button.clicked.connect(self._start_download)
+        self.ui.download_now_button.clicked.connect(self._create_download)
         
         self.ui.update_button.clicked.connect(update_this)
         
@@ -103,9 +107,14 @@ class Ui_Controller():
         self.download_thread.percent_signal.connect(self.ui.download_progressbar.setValue)
         self.download_thread.filename_signal.connect(self.ui.download_filename_label.setText)
         self.download_thread.list_item_string_signal.connect(self.ui.downloaded_list.addItem)
-        self.download_thread.finished_downloading_signal.connect(lambda: self.ui.downloaded_list.addItem("Finished Downloading\n"))
         
-        self.app.aboutToQuit.connect(lambda: self._save_options(self.default_config_location))
+        def finish_downloading():
+            self.ui.downloaded_list.addItem("Finished Downloading")
+            self._download()
+            
+        self.download_thread.finished_downloading_signal.connect(finish_downloading)
+        
+        self.app.aboutToQuit.connect(self._exit)
         
     
     def start(self):
@@ -141,6 +150,7 @@ class Ui_Controller():
                 self.ui.ffmpeg_bin_input.setText(paths['ffmpeg_bin'])
                 
                 self.ui.url_input.setText(config['DEFAULT']['url'])
+                self.MainWindow.resize(config['DEFAULT'].getint('width'), config['DEFAULT'].getint('height'))
                 
                 
     def _save_options(self, config_file=None):
@@ -167,7 +177,11 @@ class Ui_Controller():
                                'ffmpeg_bin': self.ui.ffmpeg_bin_input.text()
                                 }
             
-            config['DEFAULT'] = {'url': self.ui.url_input.text()}
+            size = self.MainWindow.size()
+            config['DEFAULT'] = {'url': self.ui.url_input.text(),
+                                 'width': size.width(),
+                                 'height': size.height()
+                                 }
             
             with open(fileName, 'w') as f:
                 config.write(f)
@@ -176,16 +190,19 @@ class Ui_Controller():
     def _progress_hook(self, d): 
         if d['status'] == 'finished'and d.get('filename', False):
             k_bytes = d.get('downloaded_bytes', 0)/1000
+            
+            if k_bytes == 0:
+                return
+            
             byte_str = "KB" if k_bytes < 1000 else "GB"
             k_bytes = k_bytes if k_bytes < 1000 else k_bytes/1000
             filename = Path(d['filename']).stem
             
             format_string = (
-                f"Downloaded: {filename:32.32}{'...' if len(filename) > 32 else '   '}\t"
-                f"{k_bytes:4.2f} {byte_str}\t"
+                f"\tDownloaded: {filename:32.32}{'...' if len(filename) > 32 else '   '}    "
+                f"{k_bytes:4.2f} {byte_str}    "
                 f"{int(d.get('elapsed', 0))//60:02}:{int(d.get('elapsed', 0))%60:02}"
             )
-            
             self.download_thread.list_item_string_signal.emit(format_string)
         
         elif d['status'] == 'downloading' and d.get('filename', False):
@@ -201,9 +218,12 @@ class Ui_Controller():
             if not self.download_thread.emittedFilename:
                 self.download_thread.filename_signal.emit(filename)
                 self.download_thread.emittedFilename = True
-                    
+    
+    def _exit(self):
+        self._save_options(self.default_config_location)
+        
             
-    def _start_download(self):
+    def _create_download(self):
         url = self.ui.url_input.text()
         options = {
             'verbose': True,
@@ -233,6 +253,9 @@ class Ui_Controller():
             
         if self.ui.plist_checkbox.isChecked():
             options['noplaylist'] = False
+            plist_name = ""
+        else:
+            plist_name = None
             
         if self.ui.archive_checkbox.isChecked():
             archive_file = "audio_archive.txt" if self.ui.mp3_convert_checkbox.isChecked() else "video_archive.txt"
@@ -258,16 +281,35 @@ class Ui_Controller():
             with open(self.ui.plists_file_input.text(), 'r') as f:
                 config.read_file(f)
                 for playlist_name in config.sections():
+                    options_temp = options.copy()
                     playlist = config[playlist_name]
-                    options['playliststart'] = playlist.getint('start')
-                    options['playlistend'] = playlist.getint('end')
-                    options['noplaylist'] = False
-                    url = playlist['url']
+                    options_temp['playliststart'] = playlist.getint('start')
+                    options_temp['playlistend'] = playlist.getint('end')
+                    options_temp['noplaylist'] = False
+                    
+                    self.urls.append(playlist['url'])
+                    self.options_list.append(options_temp)
+                    self.plist_names.append(playlist_name)
+                    
+        else:       
+            self.urls.append(url)
+            self.options_list.append(options)
+            self.plist_names.append(plist_name)
+            
+        self._download()
         
-        print(f"{options =}")
+    def _download(self):
+        if len(self.urls) == 0:
+            return
         
-        self.download_thread.wait()
-        self.download_thread.fill(url, options)
+        if self.plist_names[-1] != None:
+            self.ui.downloaded_list.addItem(f"Downloading from playlist {self.plist_names[-1]}")
+        
+        print(f"{self.options_list[-1] = }")
+        self.download_thread.fill(self.urls[-1], self.options_list[-1])
+        self.urls = self.urls[:-1]
+        self.options_list = self.options_list[:-1]
+        self.plist_names = self.plist_names[:-1]
         self.download_thread.start()
         self.download_thread.setPriority(QThread.HighestPriority)
         
