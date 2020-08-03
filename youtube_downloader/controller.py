@@ -12,6 +12,7 @@ from PyQt5.QtGui import QIcon
 from .ui import Ui_MainWindow
 from .update import update_youtube_dl, update_this
 
+
 class Download_Thread(QThread):
 
     eta_signal = pyqtSignal(str)
@@ -69,9 +70,6 @@ class Ui_Controller():
                 tmp.mkdir()
                 tmp = tmp.parent
 
-            if not p.is_dir():
-                p.touch(exist_ok=True)
-
         self.data_dir = Path(winshell.application_data()) / \
             'Youtube Downloader'
         self.archive_dir = self.data_dir / 'archives'
@@ -120,7 +118,7 @@ class Ui_Controller():
 
         self.ui.update_button.clicked.connect(update_this)
 
-        self.ui.ydl_update_button.clicked.connect(update_youtube_dl)
+        self.ui.ytdl_update_button.clicked.connect(update_youtube_dl)
 
         self.download_thread.eta_signal.connect(
             self.ui.eta_label.setText)
