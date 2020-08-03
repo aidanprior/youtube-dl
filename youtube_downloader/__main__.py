@@ -23,7 +23,19 @@ if __name__ == "__main__":
                         help="The file to log stdout and stderr to")
     args = parser.parse_args()
 
-    sys.stdout = open(args.log, "w")
+    def full_path_create(p):
+        tmp = p.parent
+        while not tmp.exists():
+            tmp.mkdir()
+            tmp = tmp.parent
+
+        if not p.is_dir():
+            p.touch(exist_ok=True)
+
+    filepath = Path(args.log)
+    full_path_create(filepath)
+
+    sys.stdout = open(filepath, "w")
     sys.stderr = sys.stdout
     x = datetime.datetime.now()
 
