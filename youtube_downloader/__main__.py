@@ -1,5 +1,6 @@
 import sys
 import datetime
+import winshell
 
 from argparse import ArgumentParser
 from pathlib import Path
@@ -17,11 +18,12 @@ if __name__ == "__main__":
                         help="The .cfg file, located in the 'User Options' \
                             folder, to load the application with")
     parser.add_argument("-l", "--log", metavar="LOG_FILE",
-                        default=str(Path(__file__).parent / "data"),
-                        help="The directory to log stdout and stderr to")
+                        default=str(Path(winshell.application_data()).parent
+                                    / "Youtube Downloader" / "output.log"),
+                        help="The file to log stdout and stderr to")
     args = parser.parse_args()
 
-    sys.stdout = open(args.log + "/output.log", "w")
+    sys.stdout = open(args.log, "w")
     sys.stderr = sys.stdout
     x = datetime.datetime.now()
 

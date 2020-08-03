@@ -64,6 +64,15 @@ class Ui_Controller():
             self._load_options(self.user_options_dir / start_config)
 
     def _create_dirs(self):
+        def full_path_create(p):
+            tmp = p.parent
+            while not tmp.exists():
+                tmp.mkdir()
+                tmp = tmp.parent
+
+            if not p.is_dir():
+                p.touch(exist_ok=True)
+
         self.data_dir = Path(winshell.application_data()) / \
             'Youtube Downloader'
         self.archive_dir = self.data_dir / 'archives'
@@ -72,10 +81,10 @@ class Ui_Controller():
         self.default_config_location = self.data_dir / \
             "last_opened_options.cfg"
 
-        self.archive_dir.mkdir(exist_ok=True)
-        self.data_dir.mkdir(exist_ok=True)
-        self.user_options_dir.mkdir(exist_ok=True)
-        self.plist_inputs_dir.mkdir(exist_ok=True)
+        full_path_create(self.data_dir)
+        full_path_create(self.archive_dir)
+        full_path_create(self.user_options_dir)
+        full_path_create(self.plist_inputs_dir)
 
     def _setup_connections(self):
         def get_download_folder():
