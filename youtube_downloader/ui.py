@@ -305,6 +305,9 @@ class Ui_MainWindow(object):
         self.plist_checkbox.setFont(font)
         self.plist_checkbox.setObjectName("plist_checkbox")
         self.options_right_layout.addWidget(self.plist_checkbox)
+        self.ytdl_update_button = QtWidgets.QPushButton(self.centralwidget)
+        self.ytdl_update_button.setObjectName("ytdl_update_button")
+        self.options_right_layout.addWidget(self.ytdl_update_button)
         self.update_button = QtWidgets.QPushButton(self.centralwidget)
         self.update_button.setObjectName("update_button")
         self.options_right_layout.addWidget(self.update_button)
@@ -337,14 +340,5 @@ class Ui_MainWindow(object):
         self.archive_checkbox.setText(_translate("MainWindow", "Use Archive"))
         self.mp3_convert_checkbox.setText(_translate("MainWindow", "Convert to mp3"))
         self.plist_checkbox.setText(_translate("MainWindow", "Download Playlist"))
+        self.ytdl_update_button.setText(_translate("MainWindow", "Update Downloader"))
         self.update_button.setText(_translate("MainWindow", " Update Program"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())

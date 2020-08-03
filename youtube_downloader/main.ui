@@ -536,6 +536,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="ytdl_update_button">
+          <property name="text">
+           <string>Update Downloader</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="update_button">
           <property name="text">
            <string> Update Program</string>
