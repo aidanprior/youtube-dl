@@ -26,6 +26,7 @@ if __name__ == "__main__":
     def full_path_create(p):
         tmp = p.parent
         while not tmp.exists():
+            
             tmp.mkdir()
             tmp = tmp.parent
 

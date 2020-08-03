@@ -12,7 +12,6 @@ from PyQt5.QtGui import QIcon
 from .ui import Ui_MainWindow
 from .update import update_youtube_dl, update_this
 
-
 class Download_Thread(QThread):
 
     eta_signal = pyqtSignal(str)
