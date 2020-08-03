@@ -18,7 +18,7 @@ if __name__ == "__main__":
                         help="The .cfg file, located in the 'User Options' \
                             folder, to load the application with")
     parser.add_argument("-l", "--log", metavar="LOG_FILE",
-                        default=str(Path(winshell.application_data()).parent
+                        default=str(Path(winshell.application_data())
                                     / "Youtube Downloader" / "output.log"),
                         help="The file to log stdout and stderr to")
     args = parser.parse_args()
